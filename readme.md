@@ -88,14 +88,6 @@ Default content:
 
 ---
 
-## Developer Access (💻)
-
-* Click the Developer button and enter code: `DevPoss55$!`.
-* **Warning**: "THIS AREA IS NOT FOR USERS. DATA LOSS AT YOUR OWN RISK."
-* Grants access to the Developer Menu (stubbed for future tools).
-
----
-
 ## Feedback (🐞)
 
 * Open the feedback dialog, enter your message, and send.
