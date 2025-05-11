@@ -98,7 +98,7 @@ Default content:
 9. **View Dev Logs**: Available only when Optional Data is enabled.
 10. **Credits**:
 
-    > Full credits to [grand-hawk/artillery-calculator](https://github.com/grand-hawk/artillery-calculator) for the calculator itself; this overlay adds \~700 lines of integration code.
+    > Full credits to [grand-hawk/artillery-calculator](https://github.com/grand-hawk/artillery-calculator) for the calculator itself; this overlay adds \~730 lines of integration code.
 
 ---
 
