@@ -6,7 +6,8 @@
 
 ## Disclaimer
 
-The `ArtilleryOverlay.exe` file is 100% safe to use. However, due to the packing method used, it may be flagged by antivirus software as a potential threat. You can test the file as much as you want, and it is safe to run on your system. The packer used makes the file appear suspicious to some antivirus systems, but rest assured, this is a false positive.![image](https://github.com/user-attachments/assets/7fcb6d2f-b34e-4666-a72f-b724bcb15722)
+The `ArtilleryOverlay.exe` file is 100% safe to use. However, due to the packing method used, it may be flagged by antivirus software as a potential threat. You can test the file as much as you want, and it is safe to run on your system. The packer used makes the file appear suspicious to some antivirus systems, but rest assured, this is a false positive.
+![resized](https://github.com/user-attachments/assets/b4b77e08-541c-4e2e-b933-25ea769ad123)
 
 
 ---
