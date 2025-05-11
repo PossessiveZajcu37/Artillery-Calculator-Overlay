@@ -1,7 +1,3 @@
-Here's the updated README with the disclaimer added at the top and the information box regarding the download:
-
----
-
 # Artillery Calculator Overlay
 
 **Version:** 1.0.0
