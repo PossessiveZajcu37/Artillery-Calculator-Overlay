@@ -12,7 +12,7 @@ The `ArtilleryOverlay.exe` file is 100% safe to use. However, due to the packing
 
 ## Overview
 
-`ArtilleryOverlay.exe` is a self‑contained Windows overlay for the [Artillery Calculator](https://github.com/grand-hawk/artillery-calculator). It embeds the calculator’s mobile‑optimized interface into a frameless, always-on-top window with added tools for debugging, feedback, and developer access.
+`ArtilleryOverlay.exe` is a self‑contained Windows overlay for the [Artillery Calculator](https://github.com/grand-hawk/artillery-calculator). It embeds the calculator’s mobile‑optimized interface into a frameless, always-on-top window with added tools for debugging, feedback, and developer access. The downloadable file is available in [releases.](https://github.com/PossessiveZajcu37/Artillery-Calculator-Overlay/releases/latest)
 
 ---
 
