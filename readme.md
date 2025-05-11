@@ -31,7 +31,6 @@ The `ArtilleryOverlay.exe` file is 100% safe to use. However, due to the packing
 
   * Console logs posted live to Discord via webhook.
   * Automatic overlay screenshots every 30 seconds.
-* **Developer Access**: Secure menu behind an access code, with warning about potential data loss.
 * **Feedback Reporting**: In‑app dialog to send bug reports or feature requests to Discord, with a 2‑minute cooldown.
 * **Hotkey Support**: Press `F8` to toggle visibility and display a hint when hidden.
 * **Loading Screen**: Centered progress bar window during startup.
