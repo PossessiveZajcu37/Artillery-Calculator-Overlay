@@ -105,7 +105,7 @@ Default content:
 ## Feedback (🐞)
 
 * Open the feedback dialog, enter your message, and send.
-* Posts to Discord via the configured webhook.
+* Sends feedback straight to the developper.
 * Subsequent submissions are blocked for 2 minutes (cooldown).
 
 ---
