@@ -16,7 +16,7 @@ The packer used makes the file appear suspicious to some antivirus systems, but 
 
 ## Overview
 
-`ArtilleryOverlay.exe` is a self‑contained Windows overlay for the [Artillery Calculator](https://github.com/grand-hawk/artillery-calculator). It embeds the calculator’s mobile‑optimized interface into a frameless, always-on-top window with added tools for debugging, feedback, and developer access. 
+`ArtilleryOverlay.exe` is a self‑contained Windows overlay for the [Artillery Calculator](https://github.com/grand-hawk/artillery-calculator) coded in Python. It embeds the calculator’s mobile‑optimized interface into a frameless, always-on-top window with added tools for debugging, feedback, and developer access. 
 The file is available in [releases.](https://github.com/PossessiveZajcu37/Artillery-Calculator-Overlay/releases/latest)
 
 ![image](https://github.com/user-attachments/assets/7bb2fe95-acb8-4cb9-9daa-70ed9fc0af15)
