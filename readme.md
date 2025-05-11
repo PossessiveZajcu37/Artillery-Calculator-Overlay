@@ -103,6 +103,11 @@ Default content:
 
 ---
 
+## Images
+* **Images are available to be seen in releases**
+
+---
+
 ## License
 
 MIT License — see the repository for full terms.
