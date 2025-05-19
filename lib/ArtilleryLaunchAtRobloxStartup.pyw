@@ -1,5 +1,3 @@
-#decided to make this part open-source as it is the only part of the entire program that runs at startup (by default its off its an option)
-
 import os
 import sys, time, json
 from pathlib import Path
@@ -39,15 +37,33 @@ class PopupWindow(QWidget):
         label.setFont(QFont("Segoe UI", 13))
         layout.addWidget(label)
 
+        # Add the "Tip" box below the main message
+        tip_box = QWidget(self.container)
+        tip_box.setStyleSheet("""
+            background-color: #34495e;
+            border-radius: 8px;
+            padding: 10px;
+        """)
+        tip_layout = QVBoxLayout(tip_box)
+        tip_layout.setContentsMargins(10, 5, 10, 5)
+        
+        tip_label = QLabel("The Auto-Launch feature is togglable in the Artillery Overlay's settings.", tip_box)
+        tip_label.setWordWrap(True)
+        tip_label.setAlignment(Qt.AlignCenter)
+        tip_label.setStyleSheet("color: #ecf0f1; font-size: 12px; font-style: italic;")
+        tip_layout.addWidget(tip_label)
+
+        # Adjust the layout to add the tip box
+        layout.addWidget(tip_box)
         self.container.adjustSize()
         w, h = self.container.width(), self.container.height()
         self.resize(w, h)
-        self.container.setGeometry(0,0,w,h)
+        self.container.setGeometry(0, 0, w, h)
 
         screen = QApplication.primaryScreen().availableGeometry()
-        x = screen.x() + (screen.width()-w)//2
+        x = screen.x() + (screen.width() - w) // 2
         y = screen.y() + 20
-        self.setGeometry(QRect(x,y,w,h))
+        self.setGeometry(QRect(x, y, w, h))
 
         QTimer.singleShot(duration_ms, self.close)
         if flash_red:
@@ -55,7 +71,6 @@ class PopupWindow(QWidget):
             t = QTimer(self)
             t.timeout.connect(self._toggle)
             t.start(500)
-            # store the timer so it sticks around
 
     def _toggle(self):
         bg = "#e74c3c" if self._flash else "#2c3e50"
@@ -63,7 +78,9 @@ class PopupWindow(QWidget):
         self._flash = not self._flash
 
     def show_(self):
-        super().show(); self.raise_(); self.activateWindow()
+        super().show()
+        self.raise_()
+        self.activateWindow()
 
 class MonitorThread(QThread):
     started = pyqtSignal()
