@@ -98,33 +98,33 @@ class Watcher:
         w.show_()
 
     def on_start(self):
-        # 1) Check if ANY Artillery Calculator is already running (including our previous child)
-        artillery_stem = Path(ARTILLERY_PATH).stem.lower()
+        # DEBUG: show me exactly what we're about to launch
+        print(f"[DEBUG] Watcher triggered – will try to launch: {ARTILLERY_PATH!r}")
 
-        # (a) our own child
+        # 1) If our own child is still running, bail out
         if self.proc and self.proc.poll() is None:
             return
 
-        # (b) any other process on the system
-        for p in psutil.process_iter(attrs=["name", "exe"]):
+        # 2) If *any* process whose exe is exactly the same file is already running, bail
+        for p in psutil.process_iter(attrs=["exe"]):
+            exe = p.info.get("exe") or ""
             try:
-                name = (p.info["name"] or "").lower()
-                exe  = Path(p.info["exe"] or "").stem.lower()
-            except (psutil.AccessDenied, psutil.NoSuchProcess):
+                if os.path.abspath(exe) == os.path.abspath(ARTILLERY_PATH):
+                    print(f"[DEBUG] Found existing Artillery process at {exe!r}, not launching a second one.")
+                    return
+            except Exception:
                 continue
-            if name == artillery_stem or exe == artillery_stem:
-                return
 
-        # 2) none found → show popup & launch
+        # 3) No existing instance → go ahead and spawn it
         self._popup("Roblox launched.\nStarting Artillery…")
         try:
-            # if the launch target isn’t a standalone .exe, run via the Python interpreter+
             if ARTILLERY_PATH.lower().endswith((".py", ".pyw")):
                 self.proc = subprocess.Popen([sys.executable, ARTILLERY_PATH])
             else:
                 self.proc = subprocess.Popen([ARTILLERY_PATH])
         except Exception as e:
             self._popup(f"Failed to start:\n{e}")
+
 
     def on_stop(self):
         self._popup("Roblox closed.\nShutting Artillery…", flash_red=True)
