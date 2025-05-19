@@ -19,7 +19,7 @@ def _kill_watcher_procs(script_name_stem: str):
             proc.kill()
 
 class PopupWindow(QWidget):
-    def __init__(self, message: str, duration_ms: int = 5000, flash_red: bool = False):
+    def __init__(self, message: str, duration_ms: int = 10000, flash_red: bool = False):
         super().__init__(flags=Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
@@ -45,12 +45,19 @@ class PopupWindow(QWidget):
             padding: 10px;
         """)
         tip_layout = QVBoxLayout(tip_box)
-        tip_layout.setContentsMargins(10, 5, 10, 5)
+        tip_layout.setContentsMargins(10, 2, 10, 5)  # Reduced margin between "Tip:" and the tip message
         
+        # Add the "Tip:" label
+        tip_label_header = QLabel("Tip:", tip_box)
+        tip_label_header.setAlignment(Qt.AlignLeft)
+        tip_label_header.setStyleSheet("color: #ecf0f1; font-size: 14px; font-weight: bold;")
+        tip_layout.addWidget(tip_label_header)
+
+        # Add the actual tip message with a larger font size
         tip_label = QLabel("The Auto-Launch feature is togglable in the Artillery Overlay's settings.", tip_box)
         tip_label.setWordWrap(True)
         tip_label.setAlignment(Qt.AlignCenter)
-        tip_label.setStyleSheet("color: #ecf0f1; font-size: 12px; font-style: italic;")
+        tip_label.setStyleSheet("color: #ecf0f1; font-size: 16px; font-style: italic;")  # Increased font size
         tip_layout.addWidget(tip_label)
 
         # Adjust the layout to add the tip box
@@ -122,7 +129,6 @@ class Watcher:
 
         # 1) If *our* child is still running, bail out
         if self.proc and self.proc.poll() is None:
-            print("[DEBUG] Our child is already alive; nothing to do.")
             return
 
         # 2) If *any* process with the same executable name is running, bail out
