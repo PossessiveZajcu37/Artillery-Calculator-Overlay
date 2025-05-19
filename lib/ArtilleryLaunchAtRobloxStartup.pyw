@@ -118,10 +118,7 @@ class Watcher:
         # 3) No existing instance → go ahead and spawn it
         self._popup("Roblox launched.\nStarting Artillery…")
         try:
-            if ARTILLERY_PATH.lower().endswith((".py", ".pyw")):
-                self.proc = subprocess.Popen([sys.executable, ARTILLERY_PATH])
-            else:
-                self.proc = subprocess.Popen([ARTILLERY_PATH])
+            self.proc = subprocess.Popen([ARTILLERY_PATH])
         except Exception as e:
             self._popup(f"Failed to start:\n{e}")
 
