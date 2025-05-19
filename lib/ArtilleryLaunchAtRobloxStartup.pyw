@@ -19,7 +19,7 @@ def _kill_watcher_procs(script_name_stem: str):
             proc.kill()
 
 class PopupWindow(QWidget):
-    def __init__(self, message: str, duration_ms: int = 10000, flash_red: bool = False):
+    def __init__(self, message: str, duration_ms: int = 10000, flash_red: bool = False, flash_green: bool = False):
         super().__init__(flags=Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
         self.setAttribute(Qt.WA_TranslucentBackground)
         self.setAttribute(Qt.WA_ShowWithoutActivating)
@@ -45,7 +45,7 @@ class PopupWindow(QWidget):
             padding: 10px;
         """)
         tip_layout = QVBoxLayout(tip_box)
-        tip_layout.setContentsMargins(10, 2, 10, 5)  # Reduced margin between "Tip:" and the tip message
+        tip_layout.setContentsMargins(10, 2, 10, 2)  # Further reduced margin between "Tip:" and the tip message
         
         # Add the "Tip:" label
         tip_label_header = QLabel("Tip:", tip_box)
@@ -72,17 +72,33 @@ class PopupWindow(QWidget):
         y = screen.y() + 20
         self.setGeometry(QRect(x, y, w, h))
 
-        QTimer.singleShot(duration_ms, self.close)
+        self.flash_count = 0
         if flash_red:
             self._flash = False
             t = QTimer(self)
-            t.timeout.connect(self._toggle)
+            t.timeout.connect(self._toggle_red)
+            t.start(500)
+        if flash_green:
+            self._flash_green = False
+            t = QTimer(self)
+            t.timeout.connect(self._toggle_green)
             t.start(500)
 
-    def _toggle(self):
+        # Make the box stay open for the specified duration
+        QTimer.singleShot(duration_ms, self.close)
+
+    def _toggle_red(self):
         bg = "#e74c3c" if self._flash else "#2c3e50"
         self.container.setStyleSheet(f"background-color: {bg}; border-radius: 12px;")
         self._flash = not self._flash
+
+    def _toggle_green(self):
+        bg = "#2ecc71" if self._flash_green else "#2c3e50"
+        self.container.setStyleSheet(f"background-color: {bg}; border-radius: 12px;")
+        self._flash_green = not self._flash_green
+        self.flash_count += 1
+        if self.flash_count >= 6:  # Flash green 3 times
+            self._flash_green = False  # Stop flashing green
 
     def show_(self):
         super().show()
@@ -118,9 +134,9 @@ class Watcher:
         self.proc = None
         self.thread.start()
 
-    def _popup(self, msg, flash=False, flash_red=False):
+    def _popup(self, msg, flash=False, flash_red=False, flash_green=False):
         # pass through either flag
-        w = PopupWindow(msg, flash_red=(flash or flash_red))
+        w = PopupWindow(msg, flash_red=(flash or flash_red), flash_green=flash_green)
         w.destroyed.connect(lambda _,x=w: None)
         w.show_()
 
@@ -145,7 +161,7 @@ class Watcher:
                 return
 
         # 3) No instance found → launch it
-        self._popup("Roblox launched.\nStarting Artillery…")
+        self._popup("Roblox launched.\nStarting Artillery Calculator…", flash_green=True)
         try:
             self.proc = subprocess.Popen([ARTILLERY_PATH])
             print(f"[DEBUG] Launched Artillery from {ARTILLERY_PATH}")
@@ -155,7 +171,7 @@ class Watcher:
 
 
     def on_stop(self):
-        # only show the “shutting down” popup if Artillery is actually running
+       
         artillery_stem = Path(ARTILLERY_PATH).stem.lower()
         artillery_running = any(
             (p.info["name"] or "").lower() == artillery_stem or
@@ -166,9 +182,8 @@ class Watcher:
             # nothing to do if we never launched or it’s already gone
             return
 
-        # now we know Artillery is up, so show the flash-red popup and schedule a kill
-        self._popup("Roblox closed.\nShutting Artillery…", flash_red=True)
-        QTimer.singleShot(5000, self._kill)
+        self._popup("Roblox closed.\nShutting Artillery Calculator…", flash_red=True)
+        QTimer.singleShot(10000, self._kill)
 
     def _kill(self):
         # kill our child if still running
@@ -187,7 +202,7 @@ class Watcher:
                 p.kill()
 
 if __name__=="__main__":
-    watcher_stem = Path(__file__).stem.lower()   # e.g. "artillerylaunchatrobloxstartup"
+    watcher_stem = Path(__file__).stem.lower()  
     try:
         _kill_watcher_procs(watcher_stem)
     except Exception as e:
