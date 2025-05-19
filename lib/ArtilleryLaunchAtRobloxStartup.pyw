@@ -105,15 +105,18 @@ class Watcher:
         if self.proc and self.proc.poll() is None:
             return
 
-        # 2) If *any* process whose exe is exactly the same file is already running, bail
-        for p in psutil.process_iter(attrs=["exe"]):
-            exe = p.info.get("exe") or ""
+        
+        # 2) If any process with the same base‐name (stem) is already running, bail
+        artillery_stem = Path(ARTILLERY_PATH).stem.lower()
+        for p in psutil.process_iter(attrs=["name", "exe"]):
             try:
-                if os.path.abspath(exe) == os.path.abspath(ARTILLERY_PATH):
-                    print(f"[DEBUG] Found existing Artillery process at {exe!r}, not launching a second one.")
-                    return
-            except Exception:
+                name     = (p.info["name"] or "").lower()
+                exe_stem = Path(p.info.get("exe") or "").stem.lower()
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
                 continue
+            if name == artillery_stem or exe_stem == artillery_stem:
+                print(f"[DEBUG] Found running Artillery ({name}/{exe_stem}), not launching another.")
+                return
 
         # 3) No existing instance → go ahead and spawn it
         self._popup("Roblox launched.\nStarting Artillery…")
