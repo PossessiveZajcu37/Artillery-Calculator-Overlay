@@ -1,3 +1,4 @@
+import os
 import sys, time, json
 from pathlib import Path
 import psutil, subprocess
@@ -98,32 +99,34 @@ class Watcher:
         w.show_()
 
     def on_start(self):
-        # DEBUG: show me exactly what we're about to launch
         print(f"[DEBUG] Watcher triggered – will try to launch: {ARTILLERY_PATH!r}")
 
-        # 1) If our own child is still running, bail out
+        # 1) If *our* child is still running, bail out
         if self.proc and self.proc.poll() is None:
+            print("[DEBUG] Our child is already alive; nothing to do.")
             return
 
-        
-        # 2) If any process with the same base‐name (stem) is already running, bail
-        artillery_stem = Path(ARTILLERY_PATH).stem.lower()
-        for p in psutil.process_iter(attrs=["name", "exe"]):
+        # 2) If *any* process with the same executable name is running, bail out
+        art_name = Path(ARTILLERY_PATH).name.lower()
+        for p in psutil.process_iter(attrs=("name", "exe")):
             try:
-                name     = (p.info["name"] or "").lower()
-                exe_stem = Path(p.info.get("exe") or "").stem.lower()
+                pname = (p.info["name"] or "").lower()
+                pexe  = (Path(p.info["exe"] or "").name or "").lower()
             except (psutil.AccessDenied, psutil.NoSuchProcess):
                 continue
-            if name == artillery_stem or exe_stem == artillery_stem:
-                print(f"[DEBUG] Found running Artillery ({name}/{exe_stem}), not launching another.")
+
+            if pname == art_name or pexe == art_name:
+                print(f"[DEBUG] Detected existing Artillery process ({pname}/{pexe}); will not relaunch.")
                 return
 
-        # 3) No existing instance → go ahead and spawn it
+        # 3) No instance found → launch it
         self._popup("Roblox launched.\nStarting Artillery…")
         try:
             self.proc = subprocess.Popen([ARTILLERY_PATH])
+            print(f"[DEBUG] Launched Artillery from {ARTILLERY_PATH}")
         except Exception as e:
             self._popup(f"Failed to start:\n{e}")
+            print(f"[ERROR] Failed to start Artillery: {e}")
 
 
     def on_stop(self):
