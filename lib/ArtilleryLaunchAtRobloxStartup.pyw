@@ -1,28 +1,12 @@
-import sys, time, json, subprocess
 import os
+import sys, time, json
 from pathlib import Path
 import psutil, subprocess
 from PyQt5.QtCore import Qt, QThread, QTimer, pyqtSignal, QRect
 from PyQt5.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QMessageBox
 from PyQt5.QtGui import QFont
 
-try:
-    # doulbe check Python version
-    python_version = subprocess.check_output([sys.executable, "--version"], stderr=subprocess.STDOUT)
-except FileNotFoundError:
-    # error message and exit
-    print("Please install Python 3.8.7 and the required dependencies if this is not working.")
-    sys.exit(1)
-
-# Check if the required dependencies are installed
-try:
-    import psutil
-    import PyQt5
-except ImportError as e:
-    print("Error: Missing required dependencies. Please install Python 3.8.7 and the required dependencies.")
-    print("You can install the dependencies using pip:\n")
-    print("    pip install psutil PyQt5")
-    sys.exit(1)
+# — load config & bail if feature disabled —
 
 def _kill_watcher_procs(script_name_stem: str):
     for proc in psutil.process_iter(attrs=["pid","name","exe"]):
