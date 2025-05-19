@@ -7,6 +7,16 @@ from PyQt5.QtGui import QFont
 
 # — load config & bail if feature disabled —
 
+def _kill_watcher_procs(script_name_stem: str):
+    for proc in psutil.process_iter(attrs=["pid","name","exe"]):
+        try:
+            name = (proc.info["name"] or "").lower()
+            exe  = Path(proc.info["exe"] or "").stem.lower()
+        except (psutil.AccessDenied, psutil.NoSuchProcess):
+            continue
+        if name == script_name_stem or exe == script_name_stem:
+            proc.kill()
+
 class PopupWindow(QWidget):
     def __init__(self, message: str, duration_ms: int = 5000, flash_red: bool = False):
         super().__init__(flags=Qt.FramelessWindowHint | Qt.WindowStaysOnTopHint)
@@ -108,30 +118,49 @@ class Watcher:
         # 2) none found → show popup & launch
         self._popup("Roblox launched.\nStarting Artillery…")
         try:
-            self.proc = subprocess.Popen([ARTILLERY_PATH])
+            # if the launch target isn’t a standalone .exe, run via the Python interpreter+
+            if ARTILLERY_PATH.lower().endswith((".py", ".pyw")):
+                self.proc = subprocess.Popen([sys.executable, ARTILLERY_PATH])
+            else:
+                self.proc = subprocess.Popen([ARTILLERY_PATH])
         except Exception as e:
             self._popup(f"Failed to start:\n{e}")
-
 
     def on_stop(self):
         self._popup("Roblox closed.\nShutting Artillery…", flash_red=True)
         QTimer.singleShot(5000, self._kill)
 
     def _kill(self):
+        # kill our child if still running
         if self.proc and self.proc.poll() is None:
             self.proc.kill()
-        for p in psutil.process_iter():
-            if p.name().lower()==ARTILLERY_NAME.lower():
+
+        # kill any other Artillery process (match by stem, so .exe or .pyw both match)
+        artillery_stem = Path(ARTILLERY_PATH).stem.lower()
+        for p in psutil.process_iter(attrs=["pid","name","exe"]):
+            try:
+                name = (p.info["name"] or "").lower()
+                exe  = Path(p.info["exe"] or "").stem.lower()
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
+                continue
+            if name == artillery_stem or exe == artillery_stem:
                 p.kill()
 
 if __name__=="__main__":
+    watcher_stem = Path(__file__).stem.lower()   # e.g. "artillerylaunchatrobloxstartup"
+    try:
+        _kill_watcher_procs(watcher_stem)
+    except Exception as e:
+        print(f"[DEBUG] _kill_watcher_procs failed (but continuing): {e}")
     app = QApplication(sys.argv)
     cfg_file = Path.home()/".overlay_config.json"
     if not cfg_file.exists():
         QMessageBox.critical(None, "Config Missing", "Overlay config not found. Aborting. Please try to re-run the Artillery Calculator exe file before trying again.")
         sys.exit(1)
     cfg = json.loads(cfg_file.read_text())
+    print(f"[DEBUG] on_roblox_startup in config is {cfg.get('on_roblox_startup')}")
     if not cfg.get("on_roblox_startup", False):
+        print("[DEBUG] aborting because on_roblox_startup is false")
         sys.exit(0)
     ARTILLERY_PATH = cfg["paths"]["overlay_exe"]
     ARTILLERY_NAME = Path(ARTILLERY_PATH).name
