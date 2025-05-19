@@ -130,6 +130,18 @@ class Watcher:
 
 
     def on_stop(self):
+        # only show the “shutting down” popup if Artillery is actually running
+        artillery_stem = Path(ARTILLERY_PATH).stem.lower()
+        artillery_running = any(
+            (p.info["name"] or "").lower() == artillery_stem or
+            Path(p.info["exe"] or "").stem.lower() == artillery_stem
+            for p in psutil.process_iter(attrs=["name","exe"])
+        )
+        if not artillery_running:
+            # nothing to do if we never launched or it’s already gone
+            return
+
+        # now we know Artillery is up, so show the flash-red popup and schedule a kill
         self._popup("Roblox closed.\nShutting Artillery…", flash_red=True)
         QTimer.singleShot(5000, self._kill)
 
