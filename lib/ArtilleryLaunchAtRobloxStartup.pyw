@@ -88,33 +88,30 @@ class Watcher:
         w.show_()
 
     def on_start(self):
-        # 1) Scan system for any other Artillery processes by executable name
-        already_running = False
-        for p in psutil.process_iter(attrs=["name", "exe"]):
-            try:
-                name = p.info["name"] or ""
-                exe  = p.info["exe"] or ""
-            except (psutil.AccessDenied, psutil.NoSuchProcess):
-                continue
-            if Path(name).stem.lower() == Path(ARTILLERY_PATH).stem.lower() \
-               or Path(exe).stem.lower()  == Path(ARTILLERY_PATH).stem.lower():
-                already_running = True
-                break
+        # 1) Check if ANY Artillery Calculator is already running (including our previous child)
+        artillery_stem = Path(ARTILLERY_PATH).stem.lower()
 
-        # If Artillery is already running, do nothing.
-        if already_running:
+        # (a) our own child
+        if self.proc and self.proc.poll() is None:
             return
 
-        # Otherwise, show popup and launch it
-        self._popup("Roblox launched.\nStarting Artillery…")
-
-        # Keep track of our own child process so we don't double-launch
-        running_child = self.proc and self.proc.poll() is None
-        if not running_child:
+        # (b) any other process on the system
+        for p in psutil.process_iter(attrs=["name", "exe"]):
             try:
-                self.proc = subprocess.Popen([ARTILLERY_PATH])
-            except Exception as e:
-                self._popup(f"Failed to start:\n{e}")
+                name = (p.info["name"] or "").lower()
+                exe  = Path(p.info["exe"] or "").stem.lower()
+            except (psutil.AccessDenied, psutil.NoSuchProcess):
+                continue
+            if name == artillery_stem or exe == artillery_stem:
+                return
+
+        # 2) none found → show popup & launch
+        self._popup("Roblox launched.\nStarting Artillery…")
+        try:
+            self.proc = subprocess.Popen([ARTILLERY_PATH])
+        except Exception as e:
+            self._popup(f"Failed to start:\n{e}")
+
 
     def on_stop(self):
         self._popup("Roblox closed.\nShutting Artillery…", flash_red=True)
