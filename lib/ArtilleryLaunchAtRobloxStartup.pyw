@@ -88,11 +88,7 @@ class Watcher:
         w.show_()
 
     def on_start(self):
-        self._popup("Roblox launched.\nStarting Artillery…")
-        # 1) Check our own child handle first
-        running_child = self.proc and self.proc.poll() is None
-
-        # 2) Also scan system for any other Artillery processes
+        # 1) Scan system for any other Artillery processes by executable name
         already_running = False
         for p in psutil.process_iter(attrs=["name", "exe"]):
             try:
@@ -101,12 +97,20 @@ class Watcher:
             except (psutil.AccessDenied, psutil.NoSuchProcess):
                 continue
             if Path(name).stem.lower() == Path(ARTILLERY_PATH).stem.lower() \
-                or Path(exe).stem.lower()  == Path(ARTILLERY_PATH).stem.lower():
+               or Path(exe).stem.lower()  == Path(ARTILLERY_PATH).stem.lower():
                 already_running = True
                 break
 
-        # Only spawn a new one if none found
-        if not running_child and not already_running:
+        # If Artillery is already running, do nothing.
+        if already_running:
+            return
+
+        # Otherwise, show popup and launch it
+        self._popup("Roblox launched.\nStarting Artillery…")
+
+        # Keep track of our own child process so we don't double-launch
+        running_child = self.proc and self.proc.poll() is None
+        if not running_child:
             try:
                 self.proc = subprocess.Popen([ARTILLERY_PATH])
             except Exception as e:
