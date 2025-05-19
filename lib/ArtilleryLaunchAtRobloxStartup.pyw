@@ -1,3 +1,5 @@
+#decided to make this part open-source as it is the only part of the entire program that runs at startup (by default its off its an option)
+
 import os
 import sys, time, json
 from pathlib import Path
